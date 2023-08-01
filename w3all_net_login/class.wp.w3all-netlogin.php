@@ -183,7 +183,7 @@ function __construct() {
      //if ( preg_match('/[^0-9A-Za-z]/', $_GET['w3allNetCookieId']) OR preg_match('/[^0-9A-Za-z]/', base64_decode($_GET['w3allNetTokenByte'])) ){
      if ( preg_match('/[^0-9A-Za-z]/', $_GET['w3allNetCookieId']) ){
         //header("Location: $this->netUrl");
-        echo 'The w3allNetCookieId do not match!'; //
+        echo 'w3allNetCookieId or w3allNetTokenByte contains unwanted chars!'; //
         exit;
      }
 
