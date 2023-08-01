@@ -35,9 +35,9 @@ function __construct() {
   public function net_setcookie(){
     global $wpdb;
 
-   	  if( isset($_GET['w3allNetCookieId']) OR isset($_GET['w3allNetUlog']) )
+      if( isset($_GET['w3allNetCookieId']) OR isset($_GET['w3allNetUlog']) )
        {
-       	return;
+        return;
        }
 
      if( isset($_COOKIE["w3all_netTokenFull"]) && preg_match('/[^0-9A-Za-z]/',$_COOKIE["w3all_netTokenFull"])
@@ -66,7 +66,7 @@ function __construct() {
 
        if( isset($_COOKIE["w3all_netTokenFull"]) && isset($_COOKIE["w3all_netCookieId"]) )
        {
-       	$this->netCookieId = $_COOKIE["w3all_netCookieId"];
+        $this->netCookieId = $_COOKIE["w3all_netCookieId"];
         $this->netTokenByte = substr($_COOKIE["w3all_netTokenFull"], 20,40);
         $nt = stripslashes(htmlspecialchars($this->netTokenByte, ENT_COMPAT));
         $ntbc = password_hash($nt, PASSWORD_BCRYPT,['cost' => 12]);
@@ -83,17 +83,17 @@ function __construct() {
     if( is_user_logged_in() ){
 
       if(isset($_GET["w3allNetCookieId"])){
-      	$dBy = $_GET["w3allNetCookieId"];
-      	} elseif(isset($_COOKIE["w3all_netCookieId"])){
-      		$dBy = $_COOKIE["w3all_netCookieId"];
-      	}
+        $dBy = $_GET["w3allNetCookieId"];
+        } elseif(isset($_COOKIE["w3all_netCookieId"])){
+          $dBy = $_COOKIE["w3all_netCookieId"];
+        }
 
      if(isset($dBy)){
       $wpdb->query("DELETE FROM $this->netdbtab WHERE netTokenId = '".$dBy."'");
      }
 
-    	  setcookie ("w3all_netTokenFull", "", 1, "/", $this->netCookieDomain);
-    	  setcookie ("w3all_netCookieId", "", 1, "/", $this->netCookieDomain);
+        setcookie ("w3all_netTokenFull", "", 1, "/", $this->netCookieDomain);
+        setcookie ("w3all_netCookieId", "", 1, "/", $this->netCookieDomain);
         setcookie("w3all_netTokenFull", "", [ "expires" => 1, "path" => "/", "domain" => $this->netCookieDomain, "secure" => 1, "httponly" => false, "samesite" => 'None' ]);
         setcookie("w3all_netCookieId", "", [ "expires" => 1, "path" => "/", "domain" => $this->netCookieDomain, "secure" => 1, "httponly" => false, "samesite" => 'None' ]);
      }
@@ -116,8 +116,8 @@ function __construct() {
 
   if( ! is_user_logged_in() )
   {
-   	 // Setup an anti bruteforce
-   	 $net_ck = $wpdb->get_row("SELECT * FROM $this->netdbtab WHERE netTokenId = '".$_GET['w3allNetCookieId']."'");
+     // Setup an anti bruteforce
+     $net_ck = $wpdb->get_row("SELECT * FROM $this->netdbtab WHERE netTokenId = '".$_GET['w3allNetCookieId']."'");
 
      if( empty($net_ck) ){ return; }
 
@@ -125,19 +125,19 @@ function __construct() {
      // Seem that it is time to add (if not exist) and login this user, if the case
    if( $_COOKIE["w3all_netTokenFull"] === $net_ck->netTokenFull && !empty($net_ck->userdata) )
    {
-     	$net_ck->userdata = unserialize($net_ck->userdata);
+      $net_ck->userdata = unserialize($net_ck->userdata);
 
-     	if( isset($net_ck->userdata->data->user_email) && is_email($net_ck->userdata->data->user_email) )
-     	 {
+      if( isset($net_ck->userdata->data->user_email) && is_email($net_ck->userdata->data->user_email) )
+       {
 
-     	  $user_id = email_exists( $net_ck->userdata->data->user_email );
-     	  $userid_uname = username_exists( $net_ck->userdata->data->user_login );
+        $user_id = email_exists( $net_ck->userdata->data->user_email );
+        $userid_uname = username_exists( $net_ck->userdata->data->user_login );
 
-     	// If email or username do not exists, add the user into this SLAVE WP
-      	if ( ! $user_id && ! $userid_uname )
-      	{
-     	  	 $role = !empty($net_ck->userdata->roles[0]) ? $net_ck->userdata->roles[0] : 'subscriber';
-     	  	 $userdata = array(
+      // If email or username do not exists, add the user into this SLAVE WP
+        if ( ! $user_id && ! $userid_uname )
+        {
+           $role = !empty($net_ck->userdata->roles[0]) ? $net_ck->userdata->roles[0] : 'subscriber';
+           $userdata = array(
                'user_login'       =>  $net_ck->userdata->data->user_login,
                'user_pass'        =>  $net_ck->userdata->data->user_pass,
                'user_email'       =>  $net_ck->userdata->data->user_email,
@@ -150,13 +150,13 @@ function __construct() {
            $user_id = wp_insert_user( $userdata );
 
           if ( is_wp_error( $user_id ) ) {
-    	     return; // ADD: throw message error here
+           return; // ADD: throw message error here
           }
 
-     	  }
+        }
 
-     	   if( ! is_user_logged_in() && ! is_wp_error( $user_id ) && $user_id > 0 )
-     	   {
+         if( ! is_user_logged_in() && ! is_wp_error( $user_id ) && $user_id > 0 )
+         {
            $user = get_user_by('ID', $user_id);
            wp_set_current_user($user->ID, $user->user_login);
            wp_set_auth_cookie($user->ID, true);
@@ -164,7 +164,7 @@ function __construct() {
 
            $wpdb->query("DELETE FROM $this->netdbtab WHERE netTokenId = '".$_COOKIE["w3all_netCookieId"]."'");
            setcookie ("w3all_netTokenFull", "", 1, "/", $this->netCookieDomain);
-    	     setcookie ("w3all_netCookieId", "", 1, "/", $this->netCookieDomain);
+           setcookie ("w3all_netCookieId", "", 1, "/", $this->netCookieDomain);
 
              wp_redirect( esc_url(home_url( '/?w3allNetUlog=1')) ); exit();
              wp_redirect( home_url() ); exit();
@@ -203,25 +203,25 @@ function __construct() {
              exit; // provide a link or a redirect, with warning
            }
 
-       	    $netTokenByteDb  = substr($net_ck->netTokenFull, 20,40);
-       	    $netTokenByteGet = trim(base64_decode($_GET['w3allNetTokenByte']));
-       	    $netTokenByteGet = str_replace(chr(0), '', $netTokenByteGet);
+            $netTokenByteDb  = substr($net_ck->netTokenFull, 20,40);
+            $netTokenByteGet = trim(base64_decode($_GET['w3allNetTokenByte']));
+            $netTokenByteGet = str_replace(chr(0), '', $netTokenByteGet);
 
             if( ! password_verify($netTokenByteDb, $netTokenByteGet) )
              { echo 'The netTokenByte DO NOT MATCH!'; exit; }  // provide a link or a redirect, with warning
               else
              {
-             	$current_user = serialize(wp_get_current_user());
+              $current_user = serialize(wp_get_current_user());
               $w3all_query->query("UPDATE ".WPW3NET_0_DB_TABPREFIX."w3all_netlogin SET userdata = '$current_user' WHERE netTokenId = '".$_GET['w3allNetCookieId']."'");
 
-            	$redir = $net_ck->netBackTo;
-            	if( $redir[-1] == '/' ){ $redir = substr($redir, 0, -1); }
-             	$vars = '/?w3allNetCookieId='.$_GET['w3allNetCookieId'];
-             	$rv = $redir.$vars;
+              $redir = $net_ck->netBackTo;
+              if( $redir[-1] == '/' ){ $redir = substr($redir, 0, -1); }
+              $vars = '/?w3allNetCookieId='.$_GET['w3allNetCookieId'];
+              $rv = $redir.$vars;
                // header( "refresh:3;url=$rv" );
               header( "Location: $rv" ); exit;
                // echo "<br />The Token match! <h3>You'll be redirected in about 3 secs. If not, please click <a href=$rv>here</a></h3>";
-             	 // exit;
+               // exit;
              }
 
            return;
@@ -232,14 +232,14 @@ function __construct() {
      if( !is_user_logged_in() )
      {
 
-     	  if( !empty($net_ck) )
+        if( !empty($net_ck) )
          {
-         	 $redir = $net_ck->netBackTo;
+           $redir = $net_ck->netBackTo;
              if( $redir[-1] == '/' ){ $redir = substr($redir, 0, -1); }
            setcookie("w3all_netBackTo", base64_encode($redir), [ 'expires' => time()+3600, 'path' => '/', 'domain' => $this->netCookieDomain, 'secure' => 1, 'httponly' => false, 'samesite' => 'None' ]);
          }
 
-     	 wp_redirect( wp_login_url() ); exit;
+       wp_redirect( wp_login_url() ); exit;
 
      } # END if( !is_user_logged_in() )
 
@@ -250,7 +250,7 @@ function __construct() {
 
   public function net_curl($data){
 
-  	  $data = http_build_query($data);
+      $data = http_build_query($data);
       $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,$this->netUrl);
@@ -315,7 +315,7 @@ function __construct() {
  public function w3all_net_db_tab_create(){
      global $wpdb;
      # for mutisite? Think it is not needed if i am not wrong (but i will test)
-  	 # $wpdb_tab = (is_multisite()) ? WPW3ALL_MAIN_DBPREFIX . 'signups' : $wpdb->prefix . 'signups';
+     # $wpdb_tab = (is_multisite()) ? WPW3ALL_MAIN_DBPREFIX . 'signups' : $wpdb->prefix . 'signups';
      $netdbtab = $wpdb->prefix . 'w3all_netlogin';
      $wpdb->query("SHOW TABLES LIKE '$this->netdbtab'");
       if($wpdb->num_rows < 1){
