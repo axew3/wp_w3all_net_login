@@ -44,6 +44,7 @@ define( 'WPW3ALLNETLOGIN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
  }
 
  /* function w3all_net_out_onfooter(){
+
  } */
 
  function w3all_wp_login_net_redir( $user_login, $user ) {
