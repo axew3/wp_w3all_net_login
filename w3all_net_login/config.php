@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) or die( 'forbidden' );
 
 define('THIS_WPW3NET_IS_SLAVE', false);
 
-// --> SITE 0
+// --> SITE 0 // Set the db connection data to the slave
 define('WPW3NET_0_URL', 'https://virtual.subdomain.localhost/wordpress_virtual-subdomain');
 define('WPW3NET_0_DB_NAME', 'wordpress_virtual-subdomain');
 define('WPW3NET_0_DB_USER', 'root');
