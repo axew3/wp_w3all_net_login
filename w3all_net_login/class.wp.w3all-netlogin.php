@@ -59,8 +59,8 @@ function __construct() {
 
       }
 
-        $nt = stripslashes(htmlspecialchars($this->netTokenByte, ENT_COMPAT));
-        $ntbc = password_hash($nt, PASSWORD_BCRYPT,['cost' => 12]);
+        //$nt = stripslashes(htmlspecialchars($this->netTokenByte, ENT_COMPAT));
+        //$ntbc = password_hash($nt, PASSWORD_BCRYPT,['cost' => 12]);
         //$data = array( 'w3allNetCookieId' => $this->netCookieId, 'w3allNetTokenByte' => $ntbc );
         //return WP_w3all_net_login::net_curl($data);
 
@@ -100,6 +100,7 @@ function __construct() {
 
   }
 
+
   public function net_get_master_response() {
     global $wpdb;
 
@@ -115,13 +116,13 @@ function __construct() {
 
   if( ! is_user_logged_in() )
   {
-   	 // TODO: may Setup a bruteforce
+   	 // Setup an anti bruteforce
    	 $net_ck = $wpdb->get_row("SELECT * FROM $this->netdbtab WHERE netTokenId = '".$_GET['w3allNetCookieId']."'");
 
      if( empty($net_ck) ){ return; }
 
-     // Check: the 'userdata' field so to know if the user was found logged in during the redirect to the master site
-     // Add (if not exist) and login this user
+     // Security check: the 'userdata' field contains the user's data inserted by the master, because the user was found logged in during the redirect to the master site?
+     // Seem that it is time to add (if not exist) and login this user, if the case
    if( $_COOKIE["w3all_netTokenFull"] === $net_ck->netTokenFull && !empty($net_ck->userdata) )
    {
      	$net_ck->userdata = unserialize($net_ck->userdata);
@@ -166,7 +167,7 @@ function __construct() {
     	     setcookie ("w3all_netCookieId", "", 1, "/", $this->netCookieDomain);
 
              wp_redirect( esc_url(home_url( '/?w3allNetUlog=1')) ); exit();
-             //wp_redirect( home_url() ); exit();
+             wp_redirect( home_url() ); exit();
          }
      }
     }
@@ -183,13 +184,13 @@ function __construct() {
      //if ( preg_match('/[^0-9A-Za-z]/', $_GET['w3allNetCookieId']) OR preg_match('/[^0-9A-Za-z]/', base64_decode($_GET['w3allNetTokenByte'])) ){
      if ( preg_match('/[^0-9A-Za-z]/', $_GET['w3allNetCookieId']) ){
         //header("Location: $this->netUrl");
-        echo 'w3allNetCookieId or w3allNetTokenByte contains unwanted chars!'; //
+        echo 'The w3allNetCookieId do not match!'; //
         exit;
      }
 
     // connect and update the user db row state into Slave
     $w3all_query = WP_w3all_net_login::w3all_net_wpdb();
-    $net_ck = $w3all_query->get_row("SELECT * FROM ".WPW3NET_0_DB_TABPREFIX."w3all_netlogin WHERE netTokenId = '".esc_sql($_GET['w3allNetCookieId'])."'");
+    $net_ck = $w3all_query->get_row("SELECT * FROM ".WPW3NET_0_DB_TABPREFIX."w3all_netlogin WHERE netTokenId = '".$_GET['w3allNetCookieId']."'");
 
     if( is_user_logged_in() )
     {
@@ -226,24 +227,23 @@ function __construct() {
            return;
          }
      } # END if( is_user_logged_in() )
-   
-     
+
+
      if( !is_user_logged_in() )
      {
-     	  
+
      	  if( !empty($net_ck) )
          {
          	 $redir = $net_ck->netBackTo;
              if( $redir[-1] == '/' ){ $redir = substr($redir, 0, -1); }
            setcookie("w3all_netBackTo", base64_encode($redir), [ 'expires' => time()+3600, 'path' => '/', 'domain' => $this->netCookieDomain, 'secure' => 1, 'httponly' => false, 'samesite' => 'None' ]);
          }
-     	
-     	 wp_redirect( wp_login_url() );
-     	 exit;
-     	 
+
+     	 wp_redirect( wp_login_url() ); exit;
+
      } # END if( !is_user_logged_in() )
-   
-   
+
+
    } # END if( !empty($_GET['w3allNetCookieId']) && !empty($_GET['w3allNetTokenByte']) )
  } # END function net_get_slave_request(){
 
@@ -310,7 +310,6 @@ function __construct() {
   return $w3all_net_dbconn;
 
  }
-
 
 # Create the db main table 'w3all_netlogin' into this SLAVE
  public function w3all_net_db_tab_create(){
