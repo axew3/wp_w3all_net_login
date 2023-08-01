@@ -115,7 +115,7 @@ function __construct() {
 
   if( ! is_user_logged_in() )
   {
-   	 // Setup a bruteforce
+   	 // TODO: may Setup a bruteforce
    	 $net_ck = $wpdb->get_row("SELECT * FROM $this->netdbtab WHERE netTokenId = '".$_GET['w3allNetCookieId']."'");
 
      if( empty($net_ck) ){ return; }
